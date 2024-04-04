@@ -1,5 +1,5 @@
 import { Model } from 'mongoose';
-import { IUser } from './user.model';
+import { IUser } from './user.schema';
 
 export class UserRepository {
   constructor(protected db: Model<IUser>) {}

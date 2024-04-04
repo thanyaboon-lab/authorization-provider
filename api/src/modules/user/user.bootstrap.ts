@@ -1,5 +1,5 @@
 import { UserController } from "./user.controller";
-import UserModel from "./user.model";
+import UserModel from "./user.schema";
 import { UserRepository } from "./user.repository";
 
 const userRepository = new UserRepository(UserModel)
