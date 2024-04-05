@@ -2,7 +2,8 @@ import express from 'express';
 import morgan from 'morgan';
 import routes from './root-routers'
 import dotenv from 'dotenv'
-import { connectDatabase } from './connect-database';
+import { connectDatabase, globalErrorHandler } from '@authorization-provider/core';
+import session from 'express-session';
 
 const mode = process.argv[2] ?? 'development'
 console.log('🚀 ~ mode:', mode)
@@ -15,6 +16,15 @@ connectDatabase()
 
 const app = express();
 
+app.use(session({
+  secret: process.env.SESSION_SECRET ? process.env.SESSION_SECRET : 'secret',
+  resave: false,
+  saveUninitialized: true,
+  // cookie: {
+  //   secure: true,
+  // }
+}));
+
 // parse json request body
 app.use(express.json())
 
@@ -24,6 +34,8 @@ app.use(express.urlencoded({ extended: true}))
 app.use(morgan('dev'))
 
 app.use('/', routes)
+
+app.use(globalErrorHandler)
 
 app.listen(port, host, () => {
   console.log(`[ ready ] http://${host}:${port}`);

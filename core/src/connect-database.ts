@@ -1,4 +1,4 @@
-import { Database } from "@authorization-provider/core";
+import { Database } from "./database";
 
 export async function connectDatabase () {
     const db = Database.getInstance();
