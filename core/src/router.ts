@@ -6,7 +6,7 @@ export type RequestHandler = (
   req: Request,
   res: Response,
   next: NextFunction
-) => MaybePromise<BaseResponse>;
+) => MaybePromise<BaseResponse> | void;
 
 export const catchAsync =
   (fn: (...args: any[]) => any) =>
@@ -42,5 +42,20 @@ export class Router {
   get(path: string, ...handlers: RequestHandler[]) {
     const { handler, middlewares } = this.extractHandlers(handlers);
     this.instance.route(path).get(middlewares, this.preRequest(handler));
+  }
+
+  post(path: string, ...handlers: RequestHandler[]) {
+    const { handler, middlewares } = this.extractHandlers(handlers);
+    this.instance.route(path).post(middlewares, this.preRequest(handler));
+  }
+
+  put(path: string, ...handlers: RequestHandler[]) {
+    const { handler, middlewares } = this.extractHandlers(handlers);
+    this.instance.route(path).put(middlewares, this.preRequest(handler));
+  }
+
+  delete(path: string, ...handlers: RequestHandler[]) {
+    const { handler, middlewares } = this.extractHandlers(handlers);
+    this.instance.route(path).delete(middlewares, this.preRequest(handler));
   }
 }

@@ -18,7 +18,9 @@
     "baseUrl": ".",
     "paths": {
       "@authorization-provider/core": ["core/src/index.ts"]
-    }
+    },
+    "typeRoots": ["./node_modules/@types", "./types"]
   },
+  "include": ["**/*.ts", "types/**/*.d.ts"],
   "exclude": ["node_modules", "tmp"]
 }

@@ -6,6 +6,7 @@ interface OAuthClient extends Document {
   clientSecret: string;
   callbackUrl: string;
   grants: string[];
+  createAt: Date;
 }
 
 interface OAuthAuthorizationCode extends Document {
@@ -15,6 +16,7 @@ interface OAuthAuthorizationCode extends Document {
   scope: string;
   clientId: string;
   userId: string;
+  createAt: Date;
 }
 
 interface OAuthAccessToken extends Document {
@@ -23,6 +25,7 @@ interface OAuthAccessToken extends Document {
   scope: string;
   clientId: string;
   userId: string;
+  createAt: Date;
 }
 
 interface OAuthRefreshToken extends Document {
@@ -31,6 +34,7 @@ interface OAuthRefreshToken extends Document {
   scope: string;
   clientId: string;
   userId: string;
+  createAt: Date;
 }
 
 const OAuthClientSchema: Schema = new Schema({
@@ -42,6 +46,7 @@ const OAuthClientSchema: Schema = new Schema({
     required: true,
     enum: ['authorization_code', 'refresh_token'],
   },
+  createAt: { type: Date, default: Date.now },
 });
 
 const OAuthAuthorizationCodeSchema: Schema = new Schema({
@@ -51,6 +56,7 @@ const OAuthAuthorizationCodeSchema: Schema = new Schema({
   scope: { type: String },
   clientId: { type: String },
   userId: { type: String },
+  createAt: { type: Date, default: Date.now },
 });
 
 const OAuthAccessTokenSchema: Schema = new Schema({
@@ -59,6 +65,7 @@ const OAuthAccessTokenSchema: Schema = new Schema({
   scope: { type: String },
   clientId: { type: String },
   userId: { type: String },
+  createAt: { type: Date, default: Date.now },
 });
 
 const OAuthRefreshTokenSchema: Schema = new Schema({
@@ -67,11 +74,29 @@ const OAuthRefreshTokenSchema: Schema = new Schema({
   scope: { type: String },
   clientId: { type: String },
   userId: { type: String },
+  createAt: { type: Date, default: Date.now },
 });
 
-const OAuthClientModel = mongoose.model<OAuthClient>('OAuthClient', OAuthClientSchema);
-const OAuthAuthorizationCodeModel = mongoose.model<OAuthAuthorizationCode>('OAuthAuthorizationCode', OAuthAuthorizationCodeSchema);
-const OAuthAccessTokenModel = mongoose.model<OAuthAccessToken>('OAuthAccessToken', OAuthAccessTokenSchema);
-const OAuthRefreshTokenModel = mongoose.model<OAuthRefreshToken>('OAuthRefreshToken', OAuthRefreshTokenSchema);
+const OAuthClientModel = mongoose.model<OAuthClient>(
+  'OAuthClient',
+  OAuthClientSchema
+);
+const OAuthAuthorizationCodeModel = mongoose.model<OAuthAuthorizationCode>(
+  'OAuthAuthorizationCode',
+  OAuthAuthorizationCodeSchema
+);
+const OAuthAccessTokenModel = mongoose.model<OAuthAccessToken>(
+  'OAuthAccessToken',
+  OAuthAccessTokenSchema
+);
+const OAuthRefreshTokenModel = mongoose.model<OAuthRefreshToken>(
+  'OAuthRefreshToken',
+  OAuthRefreshTokenSchema
+);
 
-export { OAuthClientModel, OAuthAuthorizationCodeModel, OAuthAccessTokenModel, OAuthRefreshTokenModel }
+export {
+  OAuthClientModel,
+  OAuthAuthorizationCodeModel,
+  OAuthAccessTokenModel,
+  OAuthRefreshTokenModel,
+};

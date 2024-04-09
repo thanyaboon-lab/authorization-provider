@@ -1,4 +1,8 @@
-import { AuthorizationCodeModel, BaseController } from '@authorization-provider/core';
+import {
+  AuthorizationCodeModel,
+  BaseController,
+  GenerateApplicationKey,
+} from '@authorization-provider/core';
 import OAuth2Server from 'oauth2-server';
 import { NextFunction, Request, Response } from 'express';
 
@@ -6,68 +10,63 @@ export class AuthController extends BaseController {
   constructor(
     private server: OAuth2Server = new OAuth2Server({
       model: AuthorizationCodeModel, // See https://github.com/oauthjs/node-oauth2-server for specification
-      accessTokenLifetime: 60 * 60,
+      // accessTokenLifetime: 60,
+      // refreshTokenLifetime: 60,
     })
   ) {
-    super()
+    super();
   }
 
   isAuthenticated(req: Request, res: Response, next: NextFunction) {
-    // if (req.session && req.session.user) {
+    if (req.session && req.session.userId) {
       return next();
-    // } else {
-    //   res.redirect(`/login?returnUrl=${encodeURIComponent(req.originalUrl)}`);
-    // }
+    } else {
+      res.redirect(`/login?returnUrl=${encodeURIComponent(req.originalUrl)}`);
+    }
   }
 
+  async generateApplicationKey(req: Request, res: Response) {
+    const generateKey = new GenerateApplicationKey();
+    const result = await generateKey.init();
+    return {
+      data: result
+    }
+  }
+
+  //#region Oauth2
   async authorize(req: Request, res: Response) {
     const request = new OAuth2Server.Request(req);
     const response = new OAuth2Server.Response(res);
-    return this.server
-      .authorize(request, response, {
-        authenticateHandler: {
-          // handle: async () => {}
+    const result = await this.server.authorize(request, response, {
+      authenticateHandler: {
+        handle: async () => {
+          return {};
         },
-      })
-      .then((result) => {
-        console.log('🚀 ~authorize result:', result);
-        res.json(result);
-      })
-      .catch((err) => {
-        console.log('err', err);
-        res.status(err.code).json(err);
-      });
+      },
+    });
+    return {
+      data: result,
+    };
   }
 
   async token(req: Request, res: Response) {
     const request = new OAuth2Server.Request(req);
     const response = new OAuth2Server.Response(res);
-    return this.server
-      .token(request, response, { alwaysIssueNewRefreshToken: false })
-      .then((result) => {
-        console.log('🚀 ~token result:', result);
-        res.json(result);
-      })
-      .catch((err) => {
-        console.log('err', err);
-        res.status(err.code).json(err);
-      });
+    const result = await this.server.token(request, response, {
+      alwaysIssueNewRefreshToken: false,
+    });
+    return {
+      data: result,
+    };
   }
 
   async authenticate(req: Request, res: Response, next: NextFunction) {
-    console.log('🚀 ~ authenticate:');
     const request = new OAuth2Server.Request(req);
     const response = new OAuth2Server.Response(res);
-    return this.server
-      .authenticate(request, response)
-      .then((data) => {
-        console.log('🚀 ~ data:', data);
-        // req.auth = { userId: data?.user?.id, sessionType: 'oauth2' };
-        next();
-      })
-      .catch((err) => {
-        console.log('err', err);
-        res.status(err.code).json(err);
-      });
+    const result = await this.server.authenticate(request, response);
+    return {
+      data: result,
+    };
   }
+  //#endregion
 }

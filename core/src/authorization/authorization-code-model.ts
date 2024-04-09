@@ -5,9 +5,10 @@ import {
   OAuthClientModel,
   OAuthRefreshTokenModel,
 } from './authorization.schema';
-import JWT from 'jsonwebtoken';
-import { GenerateApplicationKey } from './generate-key';
-import crypto from 'crypto'
+import JWT, { JwtPayload } from 'jsonwebtoken';
+import crypto from 'crypto';
+import GenerateApplicationKey from './generate-key';
+import { DateTime } from 'luxon';
 
 async function getClient(
   clientId: string,
@@ -130,9 +131,26 @@ async function saveToken(
   console.log('🚀 ~ saveToken token:', token);
   console.log('🚀 ~ saveToken client:', client);
   console.log('🚀 ~ saveToken user:', user);
+  const jwtDecodeAccessToken = JWT.decode(token.accessToken);
+  const jwtDecodeRefreshToken = JWT.decode(token.refreshToken!);
+  const accessTokenExpiresAt = jwtDecodeAccessToken
+    ? DateTime.fromSeconds((jwtDecodeAccessToken as JwtPayload).exp!, {
+        zone: 'utc',
+      })
+        .setZone(process.env.PORT)
+        .toJSDate()
+    : undefined;
+  const refreshTokenExpiresAt = jwtDecodeRefreshToken
+    ? DateTime.fromSeconds((jwtDecodeRefreshToken as JwtPayload).exp!, {
+        zone: 'utc',
+      })
+        .setZone(process.env.PORT)
+        .toJSDate()
+    : undefined;
+
   await OAuthAccessTokenModel.create({
     accessToken: token.accessToken,
-    accessTokenExpiresAt: token.accessTokenExpiresAt,
+    accessTokenExpiresAt,
     scope: token.scope,
     id: crypto.randomUUID(),
     clientId: client.id,
@@ -142,7 +160,7 @@ async function saveToken(
   if (token.refreshToken) {
     await OAuthRefreshTokenModel.create({
       refreshToken: token.refreshToken,
-      refreshTokenExpiresAt: token.refreshTokenExpiresAt,
+      refreshTokenExpiresAt,
       scope: token.scope,
       id: crypto.randomUUID(),
       clientId: client.id,
@@ -152,16 +170,12 @@ async function saveToken(
 
   return {
     accessToken: token.accessToken,
-    accessTokenExpiresAt: token.accessTokenExpiresAt,
+    accessTokenExpiresAt,
     refreshToken: token.refreshToken,
-    refreshTokenExpiresAt: token.refreshTokenExpiresAt,
+    refreshTokenExpiresAt,
     scope: token.scope,
     client: { id: client.id, grants: ['authorization_code'] },
     user: { id: user.id },
-
-    // other formats, i.e. for Zapier
-    access_token: token.accessToken,
-    refresh_token: token.refreshToken,
   };
 }
 
@@ -174,17 +188,19 @@ async function generateAccessToken(
   scope: string
 ) {
   const generateApplicationKey = new GenerateApplicationKey();
-  const applicationKeyPair = await generateApplicationKey.applicationKeyPair();
+  const applicationKeyPair =
+    await generateApplicationKey.getApplicationKeyPair();
   if (applicationKeyPair) {
     const payload = {
       iss: 'oauth',
       aud: 'oauth',
       sub: user.id,
-      clientid: client.id,
+      client_id: client.id,
       scope: scope,
     };
     return JWT.sign(payload, applicationKeyPair.privateKey, {
       algorithm: 'RS256',
+      expiresIn: '4h',
     });
   }
   return undefined;
@@ -199,10 +215,18 @@ async function getAccessToken(
   console.log('🚀 ~ getAccessToken:', accessToken);
   const token = await OAuthAccessTokenModel.findOne({ accessToken }).lean();
   if (!token) throw new Error('Access token not found');
+  const jwtDecodeAccessToken = JWT.decode(token.accessToken);
+  const accessTokenExpiresAt = jwtDecodeAccessToken
+    ? DateTime.fromSeconds((jwtDecodeAccessToken as JwtPayload).exp!, {
+        zone: 'utc',
+      })
+        .setZone(process.env.PORT)
+        .toJSDate()
+    : undefined;
 
   return {
     accessToken: token.accessToken,
-    accessTokenExpiresAt: token.accessTokenExpiresAt,
+    accessTokenExpiresAt,
     scope: token.scope,
     client: { id: token.clientId, grants: ['authorization_code'] },
     user: { id: token.userId },
@@ -218,17 +242,19 @@ async function generateRefreshToken(
   scope: string
 ) {
   const generateApplicationKey = new GenerateApplicationKey();
-  const applicationKeyPair = await generateApplicationKey.applicationKeyPair();
+  const applicationKeyPair =
+    await generateApplicationKey.getApplicationKeyPair();
   if (applicationKeyPair) {
     const payload = {
       iss: 'oauth',
       aud: 'oauth',
       sub: user.id,
-      clientid: client.id,
+      client_id: client.id,
       scope: scope,
     };
     return JWT.sign(payload, applicationKeyPair.privateKey, {
       algorithm: 'RS256',
+      expiresIn: '5h',
     });
   }
   return undefined;
