@@ -23,7 +23,7 @@ const ApplicationKeyModel = mongoose.model<ApplicationKey>(
 );
 
 export default class GenerateApplicationKey {
-  private secretPassphrase = 's;lz\\V7xFioac,Um';
+  // private secretPassphrase = 's;lz\\V7xFioac,Um';
   constructor(
     private applicationKey: Model<ApplicationKey> = ApplicationKeyModel
   ) {}
@@ -57,7 +57,7 @@ export default class GenerateApplicationKey {
   async getApplicationKeyPair() {
     return await ApplicationKeyModel.findOne(
       { isDelete: false },
-      { privateKey: 1, publicKey: 1, _id: 0 }
+      { privateKey: 1, publicKey: 1 }
     ).lean();
   }
 }

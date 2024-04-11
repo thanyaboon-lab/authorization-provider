@@ -1,10 +1,10 @@
 import { Model } from 'mongoose';
-import { IUser } from './user.schema';
+import { UserDocument } from './user.schema';
 
 export class UserRepository {
-  constructor(protected db: Model<IUser>) {}
+  constructor(protected db: Model<UserDocument>) {}
 
   async getAll() {
-    return this.db.find();
+    return this.db.find({}, {username: 1, email: 1, phone: 1, createdAt: 1}).lean()
   }
 }

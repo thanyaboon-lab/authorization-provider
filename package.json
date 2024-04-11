@@ -42,6 +42,7 @@
     "@types/mongoose": "^5.11.97",
     "@types/morgan": "^1.9.9",
     "@types/oauth2-server": "^3.0.16",
+    "@types/pem-jwk": "^2.0.2",
     "@types/uuid": "^9.0.8",
     "auto-bind": "^4.0.0",
     "axios": "^1.6.0",
@@ -49,11 +50,13 @@
     "dotenv": "^16.4.5",
     "express": "~4.18.1",
     "express-session": "^1.18.0",
+    "jose": "^5.2.4",
     "jsonwebtoken": "^9.0.2",
     "luxon": "^3.4.4",
     "mongoose": "^8.2.4",
     "morgan": "^1.10.0",
     "oauth2-server": "^3.1.1",
+    "pem-jwk": "^2.0.0",
     "tslib": "^2.3.0",
     "zod": "^3.22.4"
   }

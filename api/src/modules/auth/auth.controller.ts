@@ -18,7 +18,7 @@ export class AuthController extends BaseController {
   }
 
   isAuthenticated(req: Request, res: Response, next: NextFunction) {
-    if (req.session && req.session.userId) {
+    if (req.session && req.session.user) {
       return next();
     } else {
       res.redirect(`/login?returnUrl=${encodeURIComponent(req.originalUrl)}`);
@@ -29,8 +29,8 @@ export class AuthController extends BaseController {
     const generateKey = new GenerateApplicationKey();
     const result = await generateKey.init();
     return {
-      data: result
-    }
+      data: result,
+    };
   }
 
   //#region Oauth2
