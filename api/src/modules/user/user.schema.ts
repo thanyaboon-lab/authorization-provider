@@ -1,20 +1,17 @@
-import mongoose, { Document, Schema } from 'mongoose';
+import mongoose, { Schema } from 'mongoose';
 
-export interface UserDocument extends Document {
-  id: string;
+export interface UserDocument {
   username: string;
   password: string;
   email: string;
-  phone: number;
-  createdAt: Date;
+  phone: string;
 }
 
 const UserSchema: Schema = new Schema({
-  id: { type: String, auto: true },
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  phone: { type: Number },
+  phone: { type: String },
   createdAt: { type: Date, default: Date.now },
 });
 

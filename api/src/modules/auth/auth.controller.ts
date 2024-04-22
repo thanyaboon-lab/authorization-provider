@@ -40,7 +40,7 @@ export class AuthController extends BaseController {
     const result = await this.server.authorize(request, response, {
       authenticateHandler: {
         handle: async () => {
-          return {};
+          return req.session.user || undefined;
         },
       },
     });

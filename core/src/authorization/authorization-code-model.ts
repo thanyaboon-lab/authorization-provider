@@ -14,8 +14,6 @@ async function getClient(
   clientId: string,
   clientSecret: string
 ): Promise<OAuth2Server.Client | OAuth2Server.Falsey> {
-  console.log('🚀 ~ getClient clientId:', clientId);
-  console.log('🚀 ~ getClient clientSecret:', clientSecret);
   const client = await OAuthClientModel.findOne({
     clientId,
     ...(clientSecret && { clientSecret }),
@@ -61,7 +59,7 @@ async function saveAuthorizationCode(
     redirectUri: code.redirectUri,
     scope: code.scope,
     clientId: client.id,
-    userId: user.id,
+    userId: user.userId,
     user,
     client,
   };
@@ -78,13 +76,10 @@ async function saveAuthorizationCode(
 async function getAuthorizationCode(
   authorizationCode: string
 ): Promise<OAuth2Server.AuthorizationCode> {
-  console.log(
-    '🚀 ~ getAuthorizationCode authorizationCode:',
-    authorizationCode
-  );
   const code = await OAuthAuthorizationCodeModel.findOne({
     authorizationCode,
   }).lean();
+  console.log('🚀 ~ getAuthorizationCode code:', code)
   if (!code) throw new Error('Authorization code not found');
 
   return {
@@ -140,6 +135,7 @@ async function saveToken(
         .setZone(process.env.PORT)
         .toJSDate()
     : undefined;
+  console.log('🚀 ~ accessTokenExpiresAt:', accessTokenExpiresAt);
   const refreshTokenExpiresAt = jwtDecodeRefreshToken
     ? DateTime.fromSeconds((jwtDecodeRefreshToken as JwtPayload).exp!, {
         zone: 'utc',
@@ -187,6 +183,8 @@ async function generateAccessToken(
   user: OAuth2Server.User,
   scope: string
 ) {
+  console.log('🚀 ~ client:', client);
+  console.log('🚀 ~ user:', user);
   const generateApplicationKey = new GenerateApplicationKey();
   const applicationKeyPair =
     await generateApplicationKey.getApplicationKeyPair();
