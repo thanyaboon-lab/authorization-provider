@@ -18,6 +18,7 @@ interface OpenIDConfig {
   ];
   subject_types_supported: ['public'];
   id_token_signing_alg_values_supported: ['RS256'];
+  grant_types_supported: ['authorization_code', 'refresh_token']
 }
 
 export class OpenidConfigurationController extends BaseController {
@@ -36,6 +37,7 @@ export class OpenidConfigurationController extends BaseController {
     ],
     subject_types_supported: ['public'],
     id_token_signing_alg_values_supported: ['RS256'],
+    grant_types_supported: ['authorization_code', 'refresh_token']
   };
 
   constructor() {

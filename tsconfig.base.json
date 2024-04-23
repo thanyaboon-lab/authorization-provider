@@ -17,7 +17,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@authorization-provider/core": ["core/src/index.ts"]
+      "@authorization-provider/core": ["core/src/index.ts"],
     },
     "typeRoots": ["./node_modules/@types", "./types"]
   },
